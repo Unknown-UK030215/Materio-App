@@ -1,0 +1,777 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Dashboard - Analytics{% endblock title %}
+
+{% block vendor_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/apex-charts/apexcharts.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+<script id="student-chart-labels" type="application/json">{{ student_chart_labels|safe }}</script>
+<script id="student-chart-data" type="application/json">{{ student_chart_data|safe }}</script>
+<script id="orgs-labels" type="application/json">{{ organizations_labels|safe }}</script>
+<script id="orgs-counts" type="application/json">{{ organizations_counts|safe }}</script>
+<script id="programs-labels" type="application/json">{{ programs_labels|safe }}</script>
+<script id="programs-counts" type="application/json">{{ programs_counts|safe }}</script>
+<script id="college-labels" type="application/json">{{ colleges_labels|safe }}</script>
+<script id="college-counts" type="application/json">{{ colleges_counts|safe }}</script>
+<script src="{% static 'js/dashboards-analytics.js' %}"></script>
+{% endblock page_js %}
+
+
+{% block content %}
+<div class="row gy-6">
+  <!-- Congratulations card -->
+  <div class="col-md-12 col-lg-4">
+    <div class="card" style="background: linear-gradient(135deg, #f8fafc 60%, #e0e7ef 100%); box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+      <div class="card-body text-nowrap">
+      <h4 class="card-title mb-0 flex-wrap text-nowrap">Welcome Yuki and Nanazo!</h4>
+        <p class="mb-1 text-muted" style="font-size:1.1em;">Student Profile</p>
+        <p class="mb-2">Palawan State University</p>
+        <p class="mb-2">BSIT-3-B1</p>
+        <p class="mb-2">Yuki: 2022-8-0007</p>
+        <p class="mb-2">Nanazo: 2022-100-217bt</p>
+        <a href="javascript:;" class="btn btn-sm btn-primary">View Profile</a>
+      </div>
+      <img src="{% static 'img/illustrations/Yuki.jpg' %}" class="rounded-circle border border-3 border-white shadow position-absolute bottom-0 end-0 me-12 mb-5"
+      width="90" height="90" alt="profile avatar">
+      <img src="{% static 'img/illustrations/korumi.jpg' %}" class="rounded-circle border border-3 border-white shadow position-absolute bottom-0 end-0 me-2 mb-5"
+      width="83" height="83" alt="profile avatar">
+    </div>
+  </div>
+  <!--/ Congratulations card -->
+
+  <!-- Transactions -->
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="d-flex align-items-center justify-content-between">
+          <h5 class="card-title m-0 me-2">Palawan State University</h5>
+          <div class="dropdown">
+            <button class="btn text-muted p-0" type="button" id="transactionID" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="ri-more-2-line ri-24px"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
+              <a class="dropdown-item" href="javascript:void(0);">Refresh</a>
+              <a class="dropdown-item" href="javascript:void(0);">Share</a>
+              <a class="dropdown-item" href="javascript:void(0);">Update</a>
+            </div>
+          </div>
+        </div>
+        <p class="small mb-0"><span class="h6 mb-0">dashboard</span>
+      </div>
+      <div class="card-body pt-lg-10">
+        <div class="row g-6">
+          <div class="col-md-3 col-6">
+            <div class="d-flex align-items-center">
+              <div class="avatar">
+                <div class="avatar-initial bg-primary rounded shadow-xs">
+                  <i class="ri-school-fill ri-24px"></i>
+                </div>
+              </div>
+              <div class="ms-3">
+                <p class="mb-0">Colleges</p>
+                <h5 class="mb-0">{{ colleges_count }}</h5>
+                <div class="progress mt-1" style="height: 4px;">
+                  <div class="progress-bar bg-primary" style="width: {{ colleges_count|default_if_none:0|floatformat:0|add:'0'|slice:':3' }}%; max-width:100%; min-width:0%;" role="progressbar"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="d-flex align-items-center">
+              <div class="avatar">
+                <div class="avatar-initial bg-success rounded shadow-xs">
+                  <i class="ri-group-line ri-24px"></i>
+                </div>
+              </div>
+              <div class="ms-3">
+                <p class="mb-0">Organizations</p>
+                <h5 class="mb-0">{{ organizations_count }}</h5>
+                <div class="progress mt-1" style="height: 4px;">
+                  <div class="progress-bar bg-success" style="width: {{ organizations_count|floatformat:0 }}%;" role="progressbar"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="d-flex align-items-center">
+              <div class="avatar">
+                <div class="avatar-initial bg-warning rounded shadow-xs">
+                  <i class="ri-macbook-line ri-24px"></i>
+                </div>
+              </div>
+              <div class="ms-3">
+                <p class="mb-0">Program</p>
+                <h5 class="mb-0">{{ programs_count }}</h5>
+                <div class="progress mt-1" style="height: 4px;">
+                  <div class="progress-bar bg-warning" style="width: {{ programs_count|floatformat:0 }}%;" role="progressbar"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="d-flex align-items-center">
+              <div class="avatar">
+                <div class="avatar-initial bg-success rounded shadow-xs">
+                  <i class="ri-group-line ri-24px"></i>
+                </div>
+              </div>
+              <div class="ms-3">
+                <p class="mb-0">Students</p>
+                <h5 class="mb-0">{{ students_count }}</h5>
+                <div class="progress mt-1" style="height: 4px;">
+                  <div class="progress-bar bg-success" style="width: {{ students_count|floatformat:0 }}%;" role="progressbar"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--/ Transactions -->
+
+    <!-- Weekly Overview Chart -->
+    <div class="col-xl-4 col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex justify-content-between">
+            <h5 class="mb-1">Students</h5>
+            <div class="dropdown">
+              <button class="btn text-muted p-0" type="button" id="weeklyOverviewDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="ri-more-2-line ri-24px"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="weeklyOverviewDropdown">
+                <a class="dropdown-item" href="javascript:void(0);">Refresh</a>
+                <a class="dropdown-item" href="javascript:void(0);">Share</a>
+                <a class="dropdown-item" href="javascript:void(0);">Update</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body pt-lg-2">
+          <div id="weeklyOverviewChart">
+            <canvas id="weeklyOverviewLineChart"></canvas>
+          </div>
+          <div class="mt-1 mt-md-3">
+            <div class="d-flex align-items-center gap-4">
+              <h4 class="mb-0">{{ students_count }}</h4>
+              <p class="mb-0">No. of Students Enrolled</p>
+            </div>
+            <div class="d-grid mt-3 mt-md-4">
+              <button class="btn btn-primary" type="button">Details</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--/ Weekly Overview Chart -->
+
+ <!-- Total Earnings -->
+  <div class="col-xl-4 col-md-6">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="card-title m-0 me-2">Top 3 Programming Languages</h5>
+        <div class="dropdown">
+          <button class="btn text-muted p-0" type="button" id="totalEarnings" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-more-2-line ri-24px"></i>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end" aria-labelledby="totalEarnings">
+            <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
+            <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
+            <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-body pt-lg-8">
+        <div class="mb-5 mb-lg-0" style="position: relative; top: -2em;">
+          <div class="d-flex align-items-center">
+            <h3 class="mb-0">Used by <b>{{ students_count }}</b></h3>
+            <!-- <span class="text-success ms-2">
+              <i class="ri-arrow-up-s-line"></i>
+              <span>10%</span>
+            </span> -->
+          </div>
+          <p class="mb-0">Students of Palawan State University</p>
+        </div>
+        <ul class="p-0 m-0">
+          <li class="d-flex mb-6">
+            <div class="avatar flex-shrink-0 bg-lightest rounded me-3">
+              <img src="{% static 'img/icons/misc/django.png' %}" alt="zipcar">
+            </div>
+            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+              <div class="me-2">
+                <h6 class="mb-0">Django</h6>
+                <p class="mb-0">Python</p>
+              </div>
+              <div>
+                <h6 class="mb-2">{{ django_users_count|length }} users</h6>
+                <div class="progress bg-label-primary" style="height: 4px;">
+                  <div class="progress-bar bg-primary" style="width: 75%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="d-flex mb-6">
+            <div class="avatar flex-shrink-0 bg-lightest rounded me-3">
+              <img src="{% static 'img/icons/misc/javascript.png' %}" alt="bitbank">
+            </div>
+            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+              <div class="me-2">
+                <h6 class="mb-0">JavaScript</h6>
+                <p class="mb-0">ReactJS</p>
+              </div>
+              <div>
+                <h6 class="mb-2">{{ javascript_users_count|length }} users</h6>
+                <div class="progress bg-label-info" style="height: 4px;">
+                  <div class="progress-bar bg-info" style="width: 75%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="d-flex">
+            <div class="avatar flex-shrink-0 bg-lightest rounded me-3">
+              <img src="{% static 'img/icons/misc/aviato.png' %}" alt="aviato">
+            </div>
+            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+              <div class="me-2">
+                <h6 class="mb-0">Aviato</h6>
+                <p class="mb-0">HTML & Angular</p>
+              </div>
+              <div>
+                <h6 class="mb-2">{{ aviato_users_count|length }} users</h6>
+                <div class="progress bg-label-secondary" style="height: 4px;">
+                  <div class="progress-bar bg-secondary" style="width: 75%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!--/ Total Earnings -->
+
+  <!-- Four Cards -->
+  <div class="col-xl-4 col-md-6">
+    <div class="row gy-6">
+
+      <!-- Total Organizations Bar chart -->
+      <div class="col-sm-6">
+        <div class="card h-100">
+          <div class="card-header pb-0">
+            <h6 class="mb-0">Organizations</h6>
+          </div>
+          <div class="card-body">
+            <script id="orgs-labels" type="application/json">{{ organizations_labels|safe }}</script>
+            <script id="orgs-counts" type="application/json">{{ organizations_counts|safe }}</script>
+            <canvas id="totalOrganizationsBarChart" height="200"></canvas>
+            <small class="text-center mb-3">Total Organizations: {{ organizations_count}}</small>
+          </div>
+        </div>
+      </div>
+      <!--/ Total Organizations Bar chart -->
+      <!-- Program Pie Chart -->
+      <div class="col-sm-6">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center gap-2 justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+              <div class="avatar">
+                <div class="avatar-initial bg-warning rounded-circle shadow-xs">
+                  <i class="ri-pie-chart-2-line ri-24px"></i>
+                </div>
+              </div>
+              <h6 class="mb-0">Programs <span class="d-block" style="font-size:0.9em;font-weight:400;">Distribution</span></h6>
+            </div>
+            <div class="dropdown">
+              <button class="btn text-muted p-0" type="button" id="programPieChartID" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="ri-more-2-line ri-24px"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="programPieChartID">
+                <a class="dropdown-item" href="javascript:void(0);">Refresh</a>
+                <a class="dropdown-item" href="javascript:void(0);">Share</a>
+                <a class="dropdown-item" href="javascript:void(0);">Update</a>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="totalProgramsPieChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <!--/ Program Pie Chart -->
+            <!-- College Doughnut Chart -->
+      <div class="col-sm-6">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center gap-2 justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+              <div class="avatar">
+                <div class="avatar-initial bg-warning rounded-circle shadow-xs">
+                  <i class="ri-pie-chart-2-line ri-24px"></i>
+                </div>
+              </div>
+              <h6 class="mb-0">Colleges <span class="d-block" style="font-size:0.9em;font-weight:400;">Distribution</span></h6>
+            </div>
+            <div class="dropdown">
+              <button class="btn text-muted p-0" type="button" id="collegeDoughnutChartID" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="ri-more-2-line ri-24px"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="collegeDoughnutChartID">
+                <a class="dropdown-item" href="javascript:void(0);">Refresh</a>
+                <a class="dropdown-item" href="javascript:void(0);">Share</a>
+                <a class="dropdown-item" href="javascript:void(0);">Update</a>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="totalCollegesDoughnutChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <!--/ College Doughnut Chart -->
+      
+      <!-- Sessions chart -->
+      <!-- Student Organization Pie Chart -->
+      <div class="col-sm-6">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center gap-2 justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+              <div class="avatar">
+                <div class="avatar-initial bg-warning rounded-circle shadow-xs">
+                  <i class="ri-pie-chart-2-line ri-24px"></i>
+                </div>
+              </div>
+              <h6 class="mb-0">Student <span class="d-block" style="font-size:0.9em;font-weight:400;">Organizations</span></h6>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="studentOrgPieChart"></canvas>
+            <small class="text-center mb-3">Number of Students in Each Organization</small>
+          </div>
+        </div>
+      </div>
+      <!--/ Student Organization Pie Chart -->
+    </div>
+  </div>
+  <!--/ Total Earning -->
+
+  <!-- College List (Dynamic) -->
+  <div class="col-xl-4 col-md-6">
+    <div class="card h-100">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="card-title m-0 me-2">Colleges List</h5>
+      </div>
+      <div class="card-body">
+        {% for college in colleges_list %}
+        <div class="d-flex justify-content-between mb-4">
+          <div class="d-flex align-items-center">
+            <div class="avatar me-4">
+              <span class="avatar-initial bg-label-success rounded-circle">{{ college.college_acronym }}</span>
+            </div>
+            <div>
+              <strong>{{ college.college_name }}</strong> ({{ college.program_count }} programs)
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p>No colleges found.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <!--/ College List (Dynamic) -->
+
+  <!-- Deposit / Withdraw -->
+  <div class="col-xl-8">
+    <div class="card-group">
+      <div class="card mb-0">
+        <div class="card-body card-separator">
+          <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+            <h5 class="m-0 me-2">Software Applications for Coding</h5>
+            <a class="fw-medium" href="javascript:void(0);">View all</a>
+          </div>
+          <div class="deposit-content pt-2">
+            <ul class="p-0 m-0">
+              <li class="d-flex mb-4 align-items-center pb-2">
+                <div class="flex-shrink-0 me-4">
+                  <img src="{% static 'img/icons/misc/vscode.png' %}" class="img-fluid" alt="VSCode" height="30" width="30">
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">Visual Studio Code</h6>
+                    <p class="mb-0">Popular code editor</p>
+                  </div>
+                </div>
+              </li>
+              <li class="d-flex mb-4 align-items-center pb-2">
+                <div class="flex-shrink-0 me-4">
+                  <img src="{% static 'img/icons/misc/pycharm.png' %}" class="img-fluid" alt="PyCharm" height="30" width="30">
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">PyCharm</h6>
+                    <p class="mb-0">Python IDE</p>
+                  </div>
+                </div>
+              </li>
+              <li class="d-flex mb-4 align-items-center pb-2">
+                <div class="flex-shrink-0 me-4">
+                  <img src="{% static 'img/icons/misc/eclipse.png' %}" class="img-fluid" alt="Eclipse" height="30" width="30">
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">Eclipse</h6>
+                    <p class="mb-0">Java IDE</p>
+                  </div>
+                </div>
+              </li>
+              <li class="d-flex mb-4 align-items-center pb-2">
+                <div class="flex-shrink-0 me-4">
+                  <img src="{% static 'img/icons/misc/intellij.png' %}" class="img-fluid" alt="IntelliJ" height="30" width="30">
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">IntelliJ IDEA</h6>
+                    <p class="mb-0">Java, Kotlin, more</p>
+                  </div>
+                </div>
+              </li>
+              <li class="d-flex align-items-center">
+                <div class="flex-shrink-0 me-4">
+                  <img src="{% static 'img/icons/misc/notepad++.png' %}" class="img-fluid" alt="Notepad++" height="30" width="30">
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">Notepad++</h6>
+                    <p class="mb-0">Lightweight text/code editor</p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card mb-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+            <h5 class="m-0 me-2">Programming Languages<br><small>(Basic to Advanced)</small></h5>
+            <a class="fw-medium" href="javascript:void(0);">View all</a>
+          </div>
+          <div class="withdraw-content pt-2">
+            <ul class="p-0 m-0">
+              <li class="d-flex mb-4 align-items-center pb-2">
+                <div class="flex-shrink-0 me-4">
+                  <span class="avatar-initial bg-label-primary rounded-circle">HTML</span>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">HTML/CSS</h6>
+                    <p class="mb-0">Web basics</p>
+                  </div>
+                </div>
+              </li>
+              <li class="d-flex mb-4 align-items-center pb-2">
+                <div class="flex-shrink-0 me-4">
+                  <span class="avatar-initial bg-label-success rounded-circle">PY</span>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">Python</h6>
+                    <p class="mb-0">Beginner friendly</p>
+                  </div>
+                </div>
+              </li>
+              <li class="d-flex mb-4 align-items-center pb-2">
+                <div class="flex-shrink-0 me-4">
+                  <span class="avatar-initial bg-label-warning rounded-circle">JS</span>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">JavaScript</h6>
+                    <p class="mb-0">Web scripting</p>
+                  </div>
+                </div>
+              </li>
+              <li class="d-flex mb-4 align-items-center pb-2">
+                <div class="flex-shrink-0 me-4">
+                  <span class="avatar-initial bg-label-info rounded-circle">JAVA</span>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">Java</h6>
+                    <p class="mb-0">Object-oriented</p>
+                  </div>
+                </div>
+              </li>
+              <li class="d-flex mb-4 align-items-center pb-2">
+                <div class="flex-shrink-0 me-4">
+                  <span class="avatar-initial bg-label-secondary rounded-circle">C++</span>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">C++</h6>
+                    <p class="mb-0">Intermediate/Advanced</p>
+                  </div>
+                </div>
+              </li>
+              <li class="d-flex align-items-center">
+                <div class="flex-shrink-0 me-4">
+                  <span class="avatar-initial bg-label-dark rounded-circle">RUST</span>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-0">Rust</h6>
+                    <p class="mb-0">Modern systems language</p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Deposit / Withdraw -->
+
+  <!-- Data Tables -->
+  <div class="col-12">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th class="text-truncate">User</th>
+              <th class="text-truncate">College</th>
+              <th class="text-truncate">Role</th>
+              <th class="text-truncate">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar avatar-sm me-4">
+                    <img src="{% static 'img/avatars/Yuki.jpg' %}" alt="Avatar" class="rounded-circle">
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-truncate">{{ student0.lastname }}, {{ student0.firstname }} {{ student0.middlename }}</h6>
+                    <small class="text-truncate">{{ student0.student_id }}</small>
+                  </div>
+                </div>
+              <td class="text-truncate">{{ student0.program }}</td>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center">
+                  <i class="ri-vip-crown-line ri-22px text-primary me-2"></i>
+                  <span>Admin</span>
+                </div>
+              </td>
+              </td>
+              <td><span class="badge bg-label-success rounded-pill">Active</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar avatar-sm me-4">
+                    <img src="{% static 'img/avatars/korumi.jpg' %}" alt="Avatar" class="rounded-circle">
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-truncate">{{ student1.lastname }}, {{ student1.firstname }} {{ student1.middlename }}</h6>
+                    <small class="text-truncate">{{ student1.student_id }}</small>
+                  </div>
+                </div>
+              <td class="text-truncate">{{ student1.program }}</td>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center">
+                  <i class="ri-vip-crown-line ri-22px text-primary me-2"></i>
+                  <span>Admin</span>
+                </div>
+              </td>
+              </td>
+              <td><span class="badge bg-label-success rounded-pill">Active</span></td>
+            </tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar avatar-sm me-4">
+                    <img src="{% static 'img/avatars/1.png' %}" alt="Avatar" class="rounded-circle">
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-truncate">{{ student2.lastname }}, {{ student2.firstname }} {{ student2.middlename }}</h6>
+                    <small class="text-truncate">{{ student2.student_id }}</small>
+                  </div>
+                </div>
+              </td>
+              <td class="text-truncate">{{ student2.program }}</td>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center">
+                  <i class="ri-user-3-line ri-22px text-success me-2"></i>
+                  <span>Subscriber</span>
+                </div>
+              </td>
+              <td><span class="badge bg-label-warning rounded-pill">Pending</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar avatar-sm me-4">
+                    <img src="{% static 'img/avatars/3.png' %}" alt="Avatar" class="rounded-circle">
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-truncate">{{ student3.lastname }}, {{ student3.firstname }} {{ student3.middlename }}</h6>
+                    <small class="text-truncate">{{ student3.student_id }}</small>
+                  </div>
+                </div>
+              </td>
+              <td class="text-truncate">{{ student3.program }}</td>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center">
+                  <i class="ri-edit-box-line text-warning ri-22px me-2"></i>
+                  <span>Editor</span>
+                </div>
+              </td>
+              <td><span class="badge bg-label-success rounded-pill">Active</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar avatar-sm me-4">
+                    <img src="{% static 'img/avatars/2.png' %}" alt="Avatar" class="rounded-circle">
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-truncate">{{ student4.lastname }}, {{ student4.firstname }} {{ student4.middlename }}</h6>
+                    <small class="text-truncate">{{ student4.student_id }}</small>
+                  </div>
+                </div>
+              </td>
+              <td class="text-truncate">{{ student4.program }}</td>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center">
+                  <i class="ri-computer-line text-danger ri-22px me-2"></i>
+                  <span>Author</span>
+                </div>
+              </td>
+              <td><span class="badge bg-label-success rounded-pill">Active</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar avatar-sm me-4">
+                    <img src="{% static 'img/avatars/5.png' %}" alt="Avatar" class="rounded-circle">
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-truncate">{{ student5.lastname }}, {{ studen5.firstname }} {{ student5.middlename }}</h6>
+                    <small class="text-truncate">{{ student5.student_id }}</small>
+                  </div>
+                </div>
+              </td>
+              <td class="text-truncate">{{ student5.program }}</td>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center">
+                  <i class="ri-edit-box-line text-warning ri-22px me-2"></i>
+                  <span>Editor</span>
+                </div>
+              </td>
+              <td><span class="badge bg-label-warning rounded-pill">Pending</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar avatar-sm me-4">
+                    <img src="{% static 'img/avatars/4.png' %}" alt="Avatar" class="rounded-circle">
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-truncate">{{ student6.lastname }}, {{ student6.firstname }} {{ student6.middlename }}</h6>
+                    <small class="text-truncate">{{ student6.student_id }}</small>
+                  </div>
+                </div>
+              </td>
+              <td class="text-truncate">{{ student6.program }}</td>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center">
+                  <i class="ri-pie-chart-2-line ri-22px text-info me-2"></i>
+                  <span>Maintainer</span>
+                </div>
+              </td>
+              <td><span class="badge bg-label-success rounded-pill">Active</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar avatar-sm me-4">
+                    <img src="{% static 'img/avatars/7.png' %}" alt="Avatar" class="rounded-circle">
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-truncate">{{ student7.lastname }}, {{ student7.firstname }} {{ student7.middlename }}</h6>
+                    <small class="text-truncate">{{ student7.student_id }}</small>
+                  </div>
+                </div>
+              </td>
+              <td class="text-truncate">{{ student7.program }}</td>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center">
+                  <i class="ri-edit-box-line text-warning ri-22px me-2"></i>
+                  <span>Editor</span>
+                </div>
+              </td>
+              <td><span class="badge bg-label-warning rounded-pill">Pending</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar avatar-sm me-4">
+                    <img src="{% static 'img/avatars/6.png' %}" alt="Avatar" class="rounded-circle">
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-truncate">{{ student8.lastname }}, {{ student8.firstname }} {{ student8.middlename }}</h6>
+                    <small class="text-truncate">{{ student8.student_id }}</small>
+                  </div>
+                </div>
+              </td>
+              <td class="text-truncate">{{ student8.program }}</td>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center">
+                  <i class="ri-user-3-line ri-22px text-success me-2"></i>
+                  <span>Subscriber</span>
+                </div>
+              </td>
+              <td><span class="badge bg-label-success rounded-pill">Active</span></td>
+            </tr>
+            <tr class="border-transparent">
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar avatar-sm me-4">
+                    <img src="{% static 'img/avatars/1.png' %}" alt="Avatar" class="rounded-circle">
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-truncate">{{ student9.lastname }}, {{ student9.firstname }} {{ student9.middlename }}</h6>
+                    <small class="text-truncate">{{ student9.student_id }}</small>
+                  </div>
+                </div>
+              </td>
+              <td class="text-truncate">{{ student9.program }}</td>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center">
+                  <i class="ri-user-3-line ri-22px text-success me-2"></i>
+                  <span>Subscriber</span>
+                </div>
+              </td>
+              <td><span class="badge bg-label-secondary rounded-pill">Inactive</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+    <!--/ Data Tables --
+</div>
+{% endblock %}
+
